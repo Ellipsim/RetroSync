@@ -1,9 +1,9 @@
-
 ---
-name: User Story
-about: Historia de usuario de RetroSync
-title: "[US] "
+name: Historia de usuario
+about: Registrar una funcionalidad de RetroSync
+title: "[HU] "
 labels: user-story
+assignees: ""
 ---
 
 ## Historia de usuario
