@@ -1,0 +1,8 @@
+HTTP/1.1 200 
+accept-ranges: bytes
+content-disposition: attachment; filename="ef7f5268-00e3-46f0-9e94-feb304fd9b42.sav"
+date: Sun, 08 Nov 2026 17:06:58 GMT
+Content-Type: application/octet-stream
+Content-Length: 36
+
+RetroSync gateway integration test
