@@ -21,3 +21,6 @@ htmlcov/
 *.log
 dist/
 build/
+
+# VsCode workspace
+*-workspace
