@@ -24,3 +24,6 @@ build/
 
 # VsCode workspace
 *-workspace
+
+# Saves
+uploads/
