@@ -1,0 +1,91 @@
+
+name: RetroSync CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend - ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - user-service
+          - save-service
+          - api-gateway
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: retrosync
+          POSTGRES_PASSWORD: retrosync_dev
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U retrosync -d postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Create application databases
+        env:
+          PGPASSWORD: retrosync_dev
+        run: |
+          psql -h localhost -U retrosync -d postgres -c "CREATE DATABASE retrosync_users;"
+          psql -h localhost -U retrosync -d postgres -c "CREATE DATABASE retrosync_saves;"
+
+      - name: Build and verify service
+        working-directory: services/${{ matrix.service }}
+        env:
+          POSTGRES_USER: retrosync
+          POSTGRES_PASSWORD: retrosync_dev
+        run: |
+          chmod +x mvnw
+
+          if [ "${{ matrix.service }}" = "user-service" ]; then
+            export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/retrosync_users
+          elif [ "${{ matrix.service }}" = "save-service" ]; then
+            export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/retrosync_saves
+          fi
+
+          ./mvnw -B clean verify
+
+  frontend:
+    name: Frontend - Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
