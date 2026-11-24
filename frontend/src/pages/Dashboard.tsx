@@ -36,11 +36,12 @@ function Dashboard() {
   useEffect(() => {
     if (!user) return;
 
+    const userId = user.id;
     let cancelled = false;
 
     async function fetchSaves() {
       try {
-        const data = await getSaves(user.id);
+        const data = await getSaves(userId);
 
         if (!cancelled) {
           setSaves(data);
