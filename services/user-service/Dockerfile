@@ -1,3 +1,4 @@
+
 # Build the application
 FROM maven:3.9-eclipse-temurin-21 AS build
 
@@ -20,7 +21,12 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+RUN groupadd --system appgroup && \
+    useradd --system --gid appgroup appuser
+
+COPY --from=build --chown=appuser:appgroup /app/target/*.jar app.jar
+
+USER appuser
 
 EXPOSE 8081
 
