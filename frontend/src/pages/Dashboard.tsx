@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/auth';
@@ -33,8 +34,35 @@ function Dashboard() {
   }, [user]);
 
   useEffect(() => {
-    void loadSaves();
-  }, [loadSaves]);
+    if (!user) return;
+
+    let cancelled = false;
+
+    async function fetchSaves() {
+      try {
+        const data = await getSaves(user.id);
+
+        if (!cancelled) {
+          setSaves(data);
+          setError('');
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load saves');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void fetchSaves();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   function handleLogout() {
     logout();
