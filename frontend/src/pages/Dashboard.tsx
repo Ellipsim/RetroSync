@@ -1,5 +1,4 @@
-
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/auth';
 import {
@@ -19,23 +18,23 @@ function Dashboard() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
 
-  async function loadSaves() {
+  const loadSaves = useCallback(async () => {
     if (!user) return;
 
     try {
-      setError('');
       const data = await getSaves(user.id);
       setSaves(data);
+      setError('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load saves');
     } finally {
       setLoading(false);
     }
-  }
+  }, [user]);
 
   useEffect(() => {
     void loadSaves();
-  }, [user]);
+  }, [loadSaves]);
 
   function handleLogout() {
     logout();
