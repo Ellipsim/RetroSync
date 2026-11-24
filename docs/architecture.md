@@ -36,7 +36,7 @@ The system consists of five main components:
 5. **PostgreSQL:** Stores user information and save metadata.
     
 
-```
+```mermaid
 flowchart TD
     U[User / Browser]
     F[Frontend - React + Nginx]
