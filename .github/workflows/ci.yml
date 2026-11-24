@@ -68,7 +68,7 @@ jobs:
           ./mvnw -B clean verify
 
   frontend:
-    name: Frontend - Build
+    name: Frontend - Lint and Build
     runs-on: ubuntu-latest
 
     steps:
@@ -86,6 +86,30 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm run lint
+
       - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+  dockerfile-lint:
+    name: Dockerfile Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfiles with Hadolint
+        run: |
+          for dockerfile in \
+            services/user-service/Dockerfile \
+            services/save-service/Dockerfile \
+            services/api-gateway/Dockerfile \
+            frontend/Dockerfile
+          do
+            echo "Linting $dockerfile"
+            docker run --rm -i hadolint/hadolint:v2.12.0 < "$dockerfile"
+          done
