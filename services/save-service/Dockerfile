@@ -20,7 +20,14 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+RUN groupadd --system appgroup && \
+    useradd --system --gid appgroup appuser && \
+    mkdir -p /app/uploads && \
+    chown -R appuser:appgroup /app
+
+COPY --from=build --chown=appuser:appgroup /app/target/*.jar app.jar
+
+USER appuser
 
 EXPOSE 8082
 
